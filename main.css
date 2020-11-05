@@ -1,0 +1,39 @@
+body {
+    font-family: 'Kosugi Maru', sans-serif;
+    padding: 0;
+    margin: 0;
+    color: #1A1A1A;
+}
+
+div {
+    padding: 0;
+    margin: 0;
+}
+
+.content > div{
+    text-align: center;
+    padding: 20px;
+}
+
+.font-lg {
+    font-size: 1.5em;
+}
+
+.bg {
+
+}
+
+
+.button {
+    color: #FFF;
+    text-decoration: none;
+    font-weight: bold;
+    background-color: #FF7F04;
+    display: inline-block;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.orange {
+    background-color: #FFB76B;
+}

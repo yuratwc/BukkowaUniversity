@@ -1,0 +1,184 @@
+<!doctype HTML>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <meta charset="utf-8">
+        <title>Bukkowa University</title>
+        <link rel="stylesheet" href="./main.css"></link>
+        <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Righteous&display=swap" rel="stylesheet"> 
+    <script id="vs" type="xs/vs">
+
+uniform float time;
+uniform float size;
+uniform vec3 color;
+
+varying vec4 vMvPosition;
+varying vec3 vColor;
+varying vec2 vUv;
+
+void main() {
+  vColor = color;
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+  gl_PointSize = size;
+
+}
+    </script>
+    <script id="fs" type="xs/fs">
+uniform sampler2D texture;
+varying vec3 vColor;
+
+void main() {
+  vec4 col = texture2D(texture, gl_PointCoord);
+  if(col.a == 0.0) {
+      discard;
+  }
+  gl_FragColor = vec4(vColor.r, vColor.g, vColor.b, 1.0) * col;
+}
+    </script>
+    <script id="fs-b" type="xs/fs">
+
+        precision highp float;
+
+        varying vec2 vUv;
+        varying vec3 vecPos;
+        varying vec3 vecNormal;
+    
+        struct PointLight {
+            vec3 color;
+            vec3 position;
+        };
+           
+        //uniform PointLight pointLights[NUM_POINT_LIGHTS];
+    
+        uniform sampler2D texture;
+        uniform vec2 offset;
+    
+    
+        vec2 random2(vec2 p, float i) {
+            return fract(sin(vec2(dot(p,vec2(15.2,i)),dot(p,vec2(26,18))))*4785.3);
+        }
+        
+        float random(vec2 st) {
+            return fract(sin(dot(st.xy,vec2(12.9898,78.233)))*43758.5453123);
+        }
+    
+    
+        void main() {
+    
+            vec4 lightMultiplier = vec4(0.1, 0.1, 0.1, 1.0);
+    
+            /*for(int l = 0; l < NUM_POINT_LIGHTS; l++) {
+                vec3 adjustedLight = pointLights[l].position + cameraPosition;
+                vec3 lightDirection = normalize(vecPos - adjustedLight);
+                lightMultiplier.rgb += clamp(dot(-lightDirection,
+                                        vecNormal), 0.0, 1.0)
+                                    * pointLights[l].color;
+            }*/
+            vec2 resolusion = vec2(0.32, 0.32);
+            vec2 origin = vUv.xy;
+            vec2 thePosition = floor(origin / resolusion);
+    
+            const int SEEDS = 600;
+            float minDist = 9999999.9;
+            for(int y = -1; y < 2; y++) {
+                for(int x = -1; x < 2; x++) {
+                    /*if(x == 0 && y == 0)
+                        continue;*/
+                    vec2 off = vec2(x, y);
+                    vec2 vt = thePosition + off;
+                    vec2 rr = (random2(vt, 23.0)) * resolusion + vt*resolusion;
+                    float dist = distance(rr, origin);
+                    minDist = min(dist, minDist);
+                    
+                }
+            }
+            vec4 texelColor = texture2D( texture, vUv + offset );
+            
+            //gl_FragColor = texelColor * lightMultiplier;
+            float c = (1.0-(minDist / resolusion.x));
+    
+            
+            gl_FragColor = texelColor * vec4(c, c ,c, 1) * lightMultiplier;
+        }
+        
+    </script>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-particle-system-component@1.1.3/dist/aframe-particle-system-component.min.js"></script> 
+
+    <script src="./script.js" ></script>
+    </head>
+    <body style="margin : 0px; overflow: hidden;">
+        <!--<a-scene embedded arjs="sourceType: webcam; ">-->
+        <a-scene loading-screen="enabled:false;" render-order="background, menu, menubutton, menutext, hud, smog, ui" embedded arjs='sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;'>
+            <a-assets  timeout="100000" >
+                <a-asset-item id="univ" src="./campus.glb"></a-asset-item>
+                <a-asset-item id="bomb" src="./bomb.glb"></a-asset-item>
+                <audio id="sebomb" src="./bomb.mp3" preload="auto"></audio>
+                <audio id="pong" src="./pomp.mp3" preload="auto"></audio>
+                <img id="aim" src="./aim.png">
+            </a-assets>
+            <a-entity id="flyer" camera  sound="src:#pong">
+                <a-entity position="0 0 -9" raycaster="objects: .collidable;  showLine: true; far: 100" line="color: orange; opacity: 0.5"></a-entity >
+            </a-entity>
+            <a-entity position="0 0 -0.1" scale="0.005 0.005 0.005">
+                <a-image src="#aim"  material="transparent: true;" render-order="ui"></a-image>
+            </a-entity>
+
+            <a-entity>
+                <a-marker id="marker-frame" type='pattern' url="./pattern-marker.patt" emitevents="true" marker-ticker>
+                    <a-entity id="univ" gltf-model="#univ"  position="0 0.5 0" wireframe="true" rotation="0 0 0" scale="0.01 0.01 0.01" univ-ticker></a-entity>
+                </a-marker>
+                <a-entity id="balls">
+                </a-entity>
+            </a-entity>
+
+            </a-entity>
+            <!--
+            <a-entity position="0 0 0" particle-system="preset:star; color: #919130,#916100;size:5;"></a-entity>
+            <a-entity position="0 0 0" fire-effect="" material="blending: additive;"></a-entity>
+-->
+        <!--<a-box color="#0095DD" position="0 1 0" rotation="20 40 0"></a-cube>-->
+            <!--
+            <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+            <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
+            <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+            <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+            <a-sky color="#ECECEC"></a-sky>
+            -->
+            <a-entity cursor-listener></a-entity>
+          </a-scene>
+          <div class="ui">
+              <div class="flex-right">
+                    <div id="time" class="count-down">30</div>
+                </div>
+                <div class="flex-right">
+                    <div class="bg-percent">
+                        <div id="break-percent" class="count-down"><span style="font-size:0.6em;">破壊率</span> <span id="percent">0</span>%</div>
+                    </div>
+                </div>
+                <div id="ready-num" class="center-number number-animate">
+                    3
+                </div>
+            <p id="marker-shower" style="position:fixed;top:0;"></p>
+
+            <div id="desc-overlay" class="lt00 flex-center">
+                <div>
+                    <p>マーカーを映してください</p>
+                    <div id="university-frame" class="border"></div>
+                </div>
+            </div>
+            
+          </div>
+            <div id="loading" class="fg flex-center">
+                <div class="loader">Loading...</div>
+            </div>
+            <div id="result">
+                <h2>RESULT</h2>
+                <p style="font-size: 4em;"><span style="font-size: 0.9rem;">破壊率</span> <span id="percent-result">n</span> %</p>
+                <p><a href="#" onclick="location.reload();" style="color:#FFF;">もう一回遊ぶ</a></p>
+            </div>
+    </body>
+</html>
