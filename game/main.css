@@ -101,6 +101,15 @@ body {
   }
 }
 
+.transition-hide {
+  transform: translate(-50%, -50%) scaleY(0.0);
+}
+
+.transition-show {
+  transition: transform 0.8s ease-out;
+  transform: translate(-50%, -50%) scaleY(1.0);
+}
+
 #university-frame {
     width: 45vw;
     height: 45vh;
@@ -108,7 +117,6 @@ body {
 
 #result {
   position: fixed;
-  display: none;
   background: rgba(0,0,0,0.5);
   width: 50%;
   height: 50%;
@@ -116,8 +124,9 @@ body {
   left:50%;
   z-index: 444;
   color: #d2d2d2;
-  transform: translate(-50%, -50%);
   text-align: center;
+  transform: translate(-50%, -50%) scaleY(1.0);
+  display: none;
 }
 
 #result p {

@@ -78,6 +78,27 @@ class Stopwatch
 
   let domBalls = document.getElementById('balls');
 
+  window.BOMBER.restart = function() {
+    showing = false;
+    timer = new Stopwatch();
+    readyCount = 60;
+    timeOver = false;
+    //totalMaxBroken = 1;
+    totalBroken = 0;
+    gameStart = false;
+    //domBalls.children.clear();
+    domBalls.innerHTML = '';
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('desc-overlay').style.display = 'flex';
+    document.getElementById('percent').innerText = Math.floor(totalBroken / totalMaxBroken * 100);
+
+    for(let bui of document.getElementById('marker-frame').children) {
+      if(bui.components.building) {
+        bui.components.building.reset();
+      }
+    }
+  }
+
   function init() {
     const texLoader = new THREE.TextureLoader();
     texLoader.crossOrigin = '*';
@@ -141,8 +162,8 @@ class Stopwatch
         timeOver = true;
         timer.stop();
         document.getElementById('percent-result').innerText = (Math.floor(totalBroken / totalMaxBroken * 1000) / 10);
-        //document.getElementById('result').style.display = 'block';
-        document.getElementById('result').classList.add('transition-show');
+        document.getElementById('result').style.display = 'block';
+        //document.getElementById('result').classList.add('transition-show');
       }
     }, 100);
     //console.log('loaded');
@@ -315,8 +336,8 @@ class Stopwatch
   AFRAME.registerComponent('univ-ticker', {
     init: function() {
       this.el.addEventListener('model-loaded', (obj) => {
-        console.log(this.el.object3D.children);
-        const validObjects = ["inf_1", "inf_2", "s_port", "innovation", "south_hall", "sanaru_hall", "kagai", "takayanagi", "budo", "gym", "north_hall", "eng_8", "eng_7", "eng_4", "eng_5", "monozukuri_house", "monozukuri_center", "eng_1", "eng_2", "eng_6", "eng_3", "nanodevice", "electronics", "Hikarisoki", "inf_graduate", "lecture_building", "sogo", "hei", "tokeitou", "mother", "keijiban", "statue_of_kenjiro", "toilet", "sanaru_hall"];
+        //console.log(this.el.object3D.children);
+        //const validObjects = ["inf_1", "inf_2", "s_port", "innovation", "south_hall", "sanaru_hall", "kagai", "takayanagi", "budo", "gym", "north_hall", "eng_8", "eng_7", "eng_4", "eng_5", "monozukuri_house", "monozukuri_center", "eng_1", "eng_2", "eng_6", "eng_3", "nanodevice", "electronics", "Hikarisoki", "inf_graduate", "lecture_building", "sogo", "hei", "tokeitou", "mother", "keijiban", "statue_of_kenjiro", "toilet", "sanaru_hall"];
 
         const frame = document.querySelector('#marker-frame');
         this.el.object3D.scale = new THREE.Vector3(0.1, 0.1, 0.1);
@@ -324,6 +345,7 @@ class Stopwatch
         const univParent = this.el.object3D.children[0];
         let queue = [...univParent.children];
         log('decompose start');
+        const fragment = document.createDocumentFragment();
         while(queue.length > 0/*let i = 0; i < univParent.children.length; i++*/) {
           const child = queue.pop();
           if(child.type == "Mesh"/*true || validObjects.indexOf(child.name) !== -1*/) {
@@ -332,7 +354,7 @@ class Stopwatch
             if(child.geometry.boundingSphere.radius < 1) {
               continue;
             }
-            model.setAttribute('building', 'hp: ' + maxhp + ';');
+            model.setAttribute('building', 'hp: ' + maxhp + ';maxhp: ' + maxhp + ';');
             if(child.material) {
               //child.material.side = THREE.FrontSide;
               //child.material = new THREE.ShaderMaterial(child);
@@ -344,15 +366,15 @@ class Stopwatch
             worldPos.setFromMatrixPosition(child.matrixWorld);
             model.setAttribute('position', `${worldPos.x} ${worldPos.y} ${worldPos.z}`);
             worldPos.setFromMatrixScale(child.matrixWorld);
-            worldPos.multiplyScalar(0.01);
-            worldPos.y *= 1.7;
+            worldPos.multiplyScalar(0.0045);
+            worldPos.y *= 1.78;
             model.setAttribute('scale', `${worldPos.x} ${worldPos.y} ${worldPos.z}`);
             let euler = new THREE.Euler();
             euler.setFromRotationMatrix(child.matrixWorld);
             model.setAttribute('rotation', `${euler.x} ${euler.y} ${euler.z}`);
 
             model.setObject3D('mesh', child);
-            frame.appendChild(model);
+            fragment.appendChild(model);
             totalMaxBroken += maxhp;
             laycastTargets.push(child);
             //console.log(maxhp);
@@ -362,6 +384,8 @@ class Stopwatch
             }
           }
         }
+        frame.appendChild(fragment);
+
         log('decompose finish');
         document.getElementById('loading').style.display = 'none';
         
@@ -385,15 +409,22 @@ class Stopwatch
 
   AFRAME.registerComponent('building', {
     schema: {
-      hp: {type:'int', default: 2}
+      hp: {type:'int', default: 2},
+      maxhp: {type:'int', default: 2}
     },
     init: function() {
-
+      console.log(this.data.hp + "," + this.data.maxhp);
     },
     tick: function() {
 
     },
+    reset: function() {
+      this.data.hp = this.data.maxhp;
+      this.el.object3D.visible = true;
+      console.log(this.data.hp);
+    },
     hit: function() {
+      console.log('no~kan' + this.data.hp);
       if(this.data.hp <= 0) {
         this.el.object3D.visible = false;
         return false;

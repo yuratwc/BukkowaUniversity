@@ -129,10 +129,13 @@ void main() {
 
             <a-entity>
                 <a-marker id="marker-frame" type='pattern' url="./pattern-marker.patt" emitevents="true" marker-ticker>
+                    <a-light type="ambient" color="#999"></a-light>
+                    <a-light type="point" color="#F1EEEE" position="2 10 0"></a-light>
                     <a-entity id="univ" gltf-model="#univ"  position="0 0.5 0" wireframe="true" rotation="0 0 0" scale="0.01 0.01 0.01" univ-ticker></a-entity>
+                    <a-entity id="balls">
+                    </a-entity>
                 </a-marker>
-                <a-entity id="balls">
-                </a-entity>
+
             </a-entity>
 
             </a-entity>
@@ -162,7 +165,7 @@ void main() {
                 <div id="ready-num" class="center-number number-animate">
                     3
                 </div>
-            <p id="marker-shower" style="position:fixed;top:0;"></p>
+            <p id="marker-shower" style="position:fixed;top:0;z-index:99999;color:#FFF;"></p>
 
             <div id="desc-overlay" class="lt00 flex-center">
                 <div>
@@ -175,10 +178,10 @@ void main() {
             <div id="loading" class="fg flex-center">
                 <div class="loader">Loading...</div>
             </div>
-            <div id="result">
+            <div id="result" class="transition-hide">
                 <h2>RESULT</h2>
                 <p style="font-size: 4em;"><span style="font-size: 0.9rem;">破壊率</span> <span id="percent-result">n</span> %</p>
-                <p><a href="#" onclick="location.reload();" style="color:#FFF;">もう一回遊ぶ</a></p>
+                <p><a href="#" onclick="window.BOMBER.restart();" style="color:#FFF;">もう一回遊ぶ</a></p>
             </div>
     </body>
 </html>
