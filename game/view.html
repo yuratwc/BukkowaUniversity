@@ -1,0 +1,37 @@
+<!doctype HTML>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <meta charset="utf-8">
+        <title>Bukkowa University Viewer</title>
+        <link rel="stylesheet" href="./main.css"></link>
+        <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Righteous&display=swap" rel="stylesheet"> 
+        <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+        <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+        <script src="./script.js" ></script>
+    </head>
+    <body style="margin : 0px; overflow: hidden;">
+        <!--<a-scene embedded arjs="sourceType: webcam; ">-->
+        <a-scene loading-screen="enabled:false;" render-order="background, menu, menubutton, menutext, hud, smog, ui" embedded arjs='sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;'>
+            <a-assets  timeout="100000" >
+                <a-asset-item id="univ" src="./campus.glb"></a-asset-item>
+            </a-assets>
+            <a-entity id="flyer" camera >
+            </a-entity>
+            <a-entity>
+                <a-marker id="marker-frame" type='pattern' url="./pattern-marker.patt">
+                    <a-light type="ambient" color="#999"></a-light>
+                    <a-light type="point" color="#F1EEEE" position="2 10 0"></a-light>
+                    <a-entity id="univ" gltf-model="#univ"  position="0 0.5 0" rotation="0 0 0" scale="0.01 0.015 0.01" ></a-entity>
+                    </a-entity>
+                </a-marker>
+
+            </a-entity>
+
+            </a-entity>
+            <a-entity cursor-listener></a-entity>
+          </a-scene>
+    </body>
+</html>

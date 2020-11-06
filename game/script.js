@@ -366,7 +366,7 @@ class Stopwatch
             worldPos.setFromMatrixPosition(child.matrixWorld);
             model.setAttribute('position', `${worldPos.x} ${worldPos.y} ${worldPos.z}`);
             worldPos.setFromMatrixScale(child.matrixWorld);
-            worldPos.multiplyScalar(0.0045);
+            worldPos.multiplyScalar(0.006);
             worldPos.y *= 1.78;
             model.setAttribute('scale', `${worldPos.x} ${worldPos.y} ${worldPos.z}`);
             let euler = new THREE.Euler();
