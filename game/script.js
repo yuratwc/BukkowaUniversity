@@ -74,6 +74,7 @@ class Stopwatch
   var timeOver = false;
   var totalMaxBroken = 1;
   var totalBroken = 0;
+  var gameStart = false;
 
   let domBalls = document.getElementById('balls');
 
@@ -123,6 +124,10 @@ class Stopwatch
           timer.play();
         }
 
+        if(!showing) {
+          document.getElementById('ready-num').innerText = '';
+        }
+
         if(backText != element.innerText) {
           element.classList.remove("number-animate");
           void element.offsetWidth;
@@ -130,14 +135,17 @@ class Stopwatch
         }
       }
 
+      gameStart = (readyCount <= -1);
+
       if(timer.getTime() >= 30000) {
         timeOver = true;
         timer.stop();
         document.getElementById('percent-result').innerText = (Math.floor(totalBroken / totalMaxBroken * 1000) / 10);
-        document.getElementById('result').style.display = 'block';
+        //document.getElementById('result').style.display = 'block';
+        document.getElementById('result').classList.add('transition-show');
       }
     }, 100);
-    console.log('loaded');
+    //console.log('loaded');
   });
 
     //particleFire.install({THREE: THREE});
@@ -149,8 +157,9 @@ class Stopwatch
   }
   init();
   function shoot(evt) {
-    if(!showing || timeOver)
+    if(!showing || timeOver || !gameStart)
       return;
+      /*
     let px, py;
     if(evt.changedTouches) {
       const touches = evt.changedTouches;
@@ -161,6 +170,8 @@ class Stopwatch
       px = evt.clientX;
       py = evt.clientY;
     }
+    */
+
     const flyer = document.getElementById('flyer'); //player
     let worldPos = new THREE.Vector3();
     worldPos.setFromMatrixPosition(flyer.object3D.matrixWorld);
@@ -229,7 +240,7 @@ class Stopwatch
       bullet.setAttribute('bullet-mover', 'distance: 9999');
     }
 
-    console.log(intersects);
+    //console.log(intersects);
   }
 
   
@@ -286,6 +297,10 @@ class Stopwatch
           //this.el.parentNode.removeChild(this.el);
         }
        }
+     }
+     if(this.el.object3D.position.y < -2) {
+      this.enable = false;
+      this.el.object3D.visible = false;
      }
      this.el.object3D.rotation.x += 0.03;
      this.el.object3D.rotation.y += 0.03;
@@ -420,6 +435,7 @@ class Stopwatch
       this.el.addEventListener('markerLost', () => {
         this.data.showUniv = false;
         showing = false;
+        document.getElementById('ready-num').innerText = '';
         //log('lost marker');
         if(!timeOver) {
           document.getElementById('desc-overlay').style.display = 'flex';
